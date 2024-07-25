@@ -28,10 +28,8 @@ def submit_to_azure_openai(text):
         **Summarize: Extract Key Information from GitHub Repos**
 
         Take the context and extract the following key information:
-
-        1. **Case Scenario:** Identify the primary use case or scenario for which this project is intended, e.g., "Use Case 1: [briefly describe the use case]."
-        DO NOT GENERATE MARKDOWN
-        
+        **DO NOT GENERATE MARKDOWN**
+        1. **Case Scenario:** Identify the primary use case or scenario for which this project is intended, e.g., "[briefly describe the use case]."
     """
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -72,7 +70,8 @@ def generate_readme_file(repos, output_file='README.md'):
                 stripped_text = download_and_strip_html(repo['html_url'])
                 ai_summary = submit_to_azure_openai(stripped_text)
 
-                file.write(f"| {repo['name']} | [{repo['html_url']}]({repo['html_url']}) | {repo['description']}| {repo['language']} | {ai_summary} |\n")
+                escaped_summary = ai_summary.replace('|', '\\|')
+                file.write(f"| {repo['name']} | [{repo['html_url']}]({repo['html_url']}) | {repo['description']}| {repo['language']} | {escaped_summary} |\n")
 
 def repo_exists(repo_name, output_file='REPOS.md'):
     if not os.path.exists(output_file):
